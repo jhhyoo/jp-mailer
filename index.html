@@ -19,7 +19,7 @@
             padding: 1.5rem;
         }
         .container {
-            max-width: 1440px;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -56,7 +56,7 @@
         }
         .field {
             display: grid;
-            grid-template-columns: 140px 1fr;
+            grid-template-columns: 150px 1fr;
             align-items: center;
             gap: 0.5rem;
             min-height: 40px;
@@ -77,7 +77,6 @@
         }
         .multi-input input:not([type="checkbox"]) {
             flex: 1;
-            /* min-width: 60px; */
         }
         .tooltip {
             position: relative;
@@ -188,6 +187,15 @@
             align-items: center;
             gap: 0.4rem;
         }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
         input[type="radio"],
         input[type="checkbox"] {
             appearance: none;
@@ -285,7 +293,7 @@
             font-weight: 500;
             box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
             opacity: 1;
-            animation: fadeInOut 1.5s ease;
+            animation: fadeInOut 1s ease;
             z-index: 10;
         }
         .header-grid {
@@ -350,13 +358,13 @@
                         <div class="radio-grid">
                             <label class="radio-option">
                                 <div class="radio-option-header">
-                                    <input type="radio" name="purpose" value="【ご連絡】">
+                                    <input type="radio" name="purpose" value="【ご連絡】" checked>
                                     <span>【ご連絡】</span>
                                 </div>
                             </label>
                             <label class="radio-option">
                                 <div class="radio-option-header">
-                                    <input type="radio" name="purpose" value="【ご相談】" checked>
+                                    <input type="radio" name="purpose" value="【ご相談】">
                                     <span>【ご相談】</span>
                                 </div>
                             </label>
@@ -429,7 +437,7 @@
                         <div class="multi-input">
                             <input type="text" id="senderLastName" placeholder="例: 山田">
                             <input type="text" id="senderFirstName" placeholder="例: 太郎">
-                            <label style="display: flex; align-items: center; gap: 0.3rem; color: #e0e0e0; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">
+                            <label class="checkbox-label">
                                 <input type="checkbox" id="isInternational">
                                 <span>留学生</span>
                             </label>
@@ -562,7 +570,6 @@
                     <label class="field-label">メール本文</label>
                     <div class="field-input">
                         <textarea id="bodyContent" placeholder="例: この度は、貴社のインターンシップ募集に大変興味があり、ぜひ参加させていただきたく存じます。"></textarea>
-                        <!-- この度は、インターンシップ募集のご案内をいただき、誠にありがとうございます。&#10;貴社のAI技術への取り組みに強い関心を持っており、ぜひ参加させていただきたく存じます。 -->
                         <div class="hint">メインの内容を記入してください</div>
                     </div>
                 </div>
@@ -670,10 +677,6 @@
     <script>
         'use strict';
 
-        const State = {
-            isCopyInProgress: false
-        };
-
         function toggleCustomPurpose() {
             const customRadio = document.querySelector('input[name="purpose"][value="custom"]');
             const customInput = document.getElementById('customPurpose');
@@ -682,7 +685,7 @@
                 customInput.style.display = 'block';
             } else {
                 customInput.style.display = 'none';
-                customInput.value = ''; // Очищаем при скрытии
+                customInput.value = '';
             }
         }
 
@@ -693,7 +696,7 @@
             
             if (lastNameInput.value.trim() === '') {
                 firstNameInput.disabled = true;
-                firstNameInput.value = ''; // Очищаем поле при блокировке
+                firstNameInput.value = '';
                 firstNameInput.placeholder = '最初に姓を入力してください';
             } else {
                 firstNameInput.disabled = false;
@@ -818,30 +821,37 @@
             document.getElementById('signaturePreview').textContent = signatureText;
         }
 
+        const tooltipTimeouts = new WeakMap();
+
         async function copyToClipboard(element) {
-            if (State.isCopyInProgress) return;
-            
-            State.isCopyInProgress = true;
-            
             try {
                 await navigator.clipboard.writeText(element.textContent);
+                
+                if (tooltipTimeouts.has(element)) {
+                    clearTimeout(tooltipTimeouts.get(element));
+                }
+                
+                element.classList.remove('show-tooltip');
+                element.removeAttribute('data-tooltip');
+                
+                void element.offsetWidth;
                 
                 element.setAttribute('data-tooltip', 'コピーしました！');
                 element.classList.add('show-tooltip');
                 
-                setTimeout(() => {
+                const timeout = setTimeout(() => {
                     element.classList.remove('show-tooltip');
-                    setTimeout(() => {
-                        element.removeAttribute('data-tooltip');
-                    }, 200);
-                }, 1500);
+                    element.removeAttribute('data-tooltip');
+                    tooltipTimeouts.delete(element);
+                }, 1000);
+                
+                tooltipTimeouts.set(element, timeout);
                 
             } catch (error) {
                 console.error('コピーエラー:', error);
-            } finally {
-                State.isCopyInProgress = false;
             }
         }
+
 
         // イベントリスナー設定
         document.addEventListener('DOMContentLoaded', () => {
