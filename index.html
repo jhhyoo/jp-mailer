@@ -236,6 +236,10 @@
             outline: none;
             border-color: #667eea;
         }
+        input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
         .radio-label {
             font-weight: 500;
         }
@@ -243,21 +247,6 @@
             font-size: 0.75rem;
             color: #888;
             margin-left: 1.5rem;
-        }
-        #preview {
-            background: #1a1a1a;
-            padding: 1.5rem;
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 0.95rem;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            min-height: 400px;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-            border: 2px solid #4a4a4a;
-            position: relative;
         }
         .header-section {
             background: #1a1a1a;
@@ -272,12 +261,13 @@
             line-height: 1.8;
             white-space: pre-wrap;
             word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
         .header-section:active {
             transform: scale(0.99);
         }
-        .header-section.show-tooltip::after,
-        #preview.show-tooltip::after {
+        .header-section.show-tooltip::after {
             content: attr(data-tooltip);
             position: absolute;
             top: 50%;
@@ -297,9 +287,6 @@
         .preview-label {
             font-size: 0.8rem;
             color: #888;
-        }
-        #preview:active {
-            transform: scale(0.99);
         }
         @keyframes fadeInOut {
             0%, 100% { opacity: 0; }
@@ -569,15 +556,15 @@
                 <div class="radio-group">
                     <label class="radio-option">
                         <div class="radio-option-header">
-                            <input type="radio" name="closing" value="よろしくお願いいたします。" checked>
-                            <span class="radio-label">よろしくお願いいたします。</span>
+                            <input type="radio" name="closing" value="よろしくお願い申し上げます。" checked>
+                            <span class="radio-label">よろしくお願い申し上げます。</span>
                         </div>
                         <span class="radio-context">一般的な依頼・お願いの場合</span>
                     </label>
                     <label class="radio-option">
                         <div class="radio-option-header">
-                            <input type="radio" name="closing" value="ご確認のほどよろしくお願いいたします。">
-                            <span class="radio-label">ご確認のほどよろしくお願いいたします。</span>
+                            <input type="radio" name="closing" value="ご確認のほどよろしくお願い申し上げます。">
+                            <span class="radio-label">ご確認のほどよろしくお願い申し上げます。</span>
                         </div>
                         <span class="radio-context">確認を依頼する場合</span>
                     </label>
@@ -590,8 +577,8 @@
                     </label>
                     <label class="radio-option">
                         <div class="radio-option-header">
-                            <input type="radio" name="closing" value="引き続きどうぞよろしくお願いいたします。">
-                            <span class="radio-label">引き続きどうぞよろしくお願いいたします。</span>
+                            <input type="radio" name="closing" value="引き続きどうぞよろしくお願い申し上げます。">
+                            <span class="radio-label">引き続きどうぞよろしくお願い申し上げます。</span>
                         </div>
                         <span class="radio-context">継続的な関係の場合</span>
                     </label>
@@ -601,6 +588,13 @@
             <!-- 署名 -->
             <div class="section">
                 <div class="section-title">署名</div>
+
+                <div class="field">
+                    <label class="field-label">住所</label>
+                    <div class="field-input">
+                        <input type="text" id="address" placeholder="例: 東京都千代田区1-2-3">
+                    </div>
+                </div>
                 
                 <div class="field">
                     <label class="field-label">電話番号</label>
@@ -623,12 +617,16 @@
             <h2>メールプレビュー</h2>
             
             <!-- ヘッダー情報プレビュー -->
-            <div class="preview-label">クリックしてコピー（ヘッダー情報）</div>
+            <div class="preview-label">ヘッダー情報（クリックしてコピー）</div>
             <div id="headerPreview" class="header-section"></div>
             
             <!-- メール本文プレビュー -->
-            <div class="preview-label">クリックしてコピー（メール本文）</div>
-            <div id="preview"></div>
+            <div class="preview-label">メール本文（クリックしてコピー）</div>
+            <div id="preview" class="header-section"></div>
+
+            <!-- 署名プレビュー -->
+            <div class="preview-label">署名（クリックしてコピー）</div>
+            <div id="signaturePreview" class="header-section"></div>
         </div>
     </div>
 
@@ -638,6 +636,21 @@
         const State = {
             isCopyInProgress: false
         };
+
+        // 宛先名フィールドをロック/ロック解除する
+        function updateRecipientFirstNameState() {
+            const lastNameInput = document.getElementById('recipientLastName');
+            const firstNameInput = document.getElementById('recipientFirstName');
+            
+            if (lastNameInput.value.trim() === '') {
+                firstNameInput.disabled = true;
+                firstNameInput.value = ''; // Очищаем поле при блокировке
+                firstNameInput.placeholder = '最初に姓を入力してください';
+            } else {
+                firstNameInput.disabled = false;
+                firstNameInput.placeholder = '例: 太郎';
+            }
+        }
 
         function updatePreview() {
             // ヘッダー情報
@@ -656,9 +669,24 @@
             // 本文で使う名前（留学生の場合はFirstNameのみ）
             const senderName = isInternational ? senderFirstName : senderLastName;
             
-            const recipientLastName = document.getElementById('recipientLastName').value || '▽▽';
-            const recipientFirstName = document.getElementById('recipientFirstName').value || '〇〇';
-            const recipient = `${recipientLastName}${recipientFirstName}`;
+            const recipientLastName = document.getElementById('recipientLastName').value;
+            const recipientFirstName = document.getElementById('recipientFirstName').value;
+
+            // Формируем имя получателя
+            let recipient;
+            if (recipientLastName && recipientFirstName) {
+                // Введены и фамилия, и имя
+                recipient = `${recipientLastName}${recipientFirstName}`;
+            } else if (recipientLastName) {
+                // Только фамилия
+                recipient = recipientLastName;
+            } else if (recipientFirstName) {
+                // Только имя
+                recipient = recipientFirstName;
+            } else {
+                // Ничего не введено - показываем плейсхолдер
+                recipient = '▽▽〇〇';
+            }
             
             const cc1 = document.getElementById('cc1').value;
             const cc2 = document.getElementById('cc2').value;
@@ -698,6 +726,7 @@
             const closing = document.querySelector('input[name="closing"]:checked').value;
             
             // 署名
+            const address = document.getElementById('address').value;
             const tel = document.getElementById('tel').value || '000-0000-0000';
             const email = document.getElementById('email').value || 'xxxx@mail.com';
 
@@ -713,7 +742,7 @@
             let emailText = '';
             emailText += `株式会社${company}\n`;
             if (companyDepartment) emailText += `${companyDepartment}\n`;
-            emailText += `${recipientLastName}様\n\n`;
+            emailText += `${recipientLastName || '▽▽'}様\n\n`;
             emailText += `${greeting}\n`;
             
             let schoolInfo = `${schoolName}${schoolType}`;
@@ -721,13 +750,20 @@
             
             emailText += `${schoolInfo}の${senderName}${introduction}\n\n`;
             emailText += `${bodyContent}\n\n`;
-            emailText += `${closing}\n\n`;
-            emailText += `━━━━━━━━━━\n`;
-            emailText += `${schoolName}${schoolType}\n`;
-            if (schoolDepartment) emailText += `${schoolDepartment}\n`;
-            emailText += `TEL：${tel}\n`;
-            emailText += `Mail：${email}\n`;
-            emailText += `${senderLastName}　${senderFirstName}\n`;
+            emailText += `${closing}`;
+
+            document.getElementById('preview').textContent = emailText;
+
+            // 署名プレビュー
+            let signatureText = '';
+            signatureText += `${schoolName}${schoolType}\n`;
+            if (schoolDepartment) signatureText += `${schoolDepartment}\n`;
+            if (address) signatureText += `${address}\n`;
+            signatureText += `TEL：${tel}\n`;
+            signatureText += `Mail：${email}\n`;
+            signatureText += `${senderLastName}　${senderFirstName}`;
+
+            document.getElementById('signaturePreview').textContent = signatureText;
 
             document.getElementById('headerPreview').textContent = headerText;
             document.getElementById('preview').textContent = emailText;
@@ -780,7 +816,16 @@
                 copyToClipboard(this);
             });
 
+            document.getElementById('signaturePreview').addEventListener('click', function() {
+                copyToClipboard(this);
+            });
+
+            document.getElementById('recipientLastName').addEventListener('input', function() {
+                updateRecipientFirstNameState();
+            });
+
             // 初期表示
+            updateRecipientFirstNameState();
             updatePreview();
         });
     </script>
