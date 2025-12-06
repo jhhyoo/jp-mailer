@@ -27,8 +27,8 @@
         }
         h2 {
             color: #e0e0e0;
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+            margin-bottom: 0.6rem;
             text-align: center;
         }
         .panel {
@@ -56,9 +56,9 @@
         }
         .field {
             display: grid;
-            grid-template-columns: 150px 1fr;
+            grid-template-columns: 140px 1fr;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem;
             min-height: 40px;
         }
         .field-label {
@@ -68,6 +68,7 @@
         .field-input {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
         }
         .multi-input {
             display: flex;
@@ -76,7 +77,7 @@
         }
         .multi-input input:not([type="checkbox"]) {
             flex: 1;
-            min-width: 100px;
+            /* min-width: 60px; */
         }
         .tooltip {
             position: relative;
@@ -149,6 +150,9 @@
         input::placeholder, textarea::placeholder {
             color: #666;
         }
+        #customPurpose {
+            display: none;
+        }
         textarea {
             resize: vertical;
             min-height: 90px;
@@ -156,7 +160,7 @@
         .radio-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem 1rem;
+            gap: 0.5rem;
         }
         .radio-group {
             display: flex;
@@ -284,6 +288,26 @@
             animation: fadeInOut 1.5s ease;
             z-index: 10;
         }
+        .header-grid {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 0.6rem;
+            align-items: center;
+        }
+        .header-grid-label {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .header-grid-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #e0e0e0;
+            padding-left: 1.5rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
         .preview-label {
             font-size: 0.8rem;
             color: #888;
@@ -327,54 +351,48 @@
                             <label class="radio-option">
                                 <div class="radio-option-header">
                                     <input type="radio" name="purpose" value="【ご連絡】">
-                                    <span class="radio-label">【ご連絡】</span>
+                                    <span>【ご連絡】</span>
                                 </div>
                             </label>
                             <label class="radio-option">
                                 <div class="radio-option-header">
                                     <input type="radio" name="purpose" value="【ご相談】">
-                                    <span class="radio-label">【ご相談】</span>
+                                    <span>【ご相談】</span>
                                 </div>
                             </label>
                             <label class="radio-option">
                                 <div class="radio-option-header">
                                     <input type="radio" name="purpose" value="【ご確認】">
-                                    <span class="radio-label">【ご確認】</span>
+                                    <span>【ご確認】</span>
                                 </div>
                             </label>
                             <label class="radio-option">
                                 <div class="radio-option-header">
                                     <input type="radio" name="purpose" value="【ご依頼】">
-                                    <span class="radio-label">【ご依頼】</span>
+                                    <span>【ご依頼】</span>
                                 </div>
                             </label>
                             <label class="radio-option">
                                 <div class="radio-option-header">
                                     <input type="radio" name="purpose" value="【ご返信】">
-                                    <span class="radio-label">【ご返信】</span>
-                                </div>
-                            </label>
-                            <label class="radio-option">
-                                <div class="radio-option-header">
-                                    <input type="radio" name="purpose" value="【日程調整】">
-                                    <span class="radio-label">【日程調整】</span>
+                                    <span>【ご返信】</span>
                                 </div>
                             </label>
                             <label class="radio-option">
                                 <div class="radio-option-header">
                                     <input type="radio" name="purpose" value="【書類提出】">
-                                    <span class="radio-label">【書類提出】</span>
+                                    <span>【書類提出】</span>
                                 </div>
                             </label>
                             <label class="radio-option">
                                 <div class="radio-option-header">
                                     <input type="radio" name="purpose" value="custom" checked>
-                                    <span class="radio-label">【カスタム】</span>
+                                    <span>【カスタム】</span>
                                 </div>
                             </label>
 
-                            <input type="text" id="customPurpose" placeholder="例: ご報告">
                         </div>
+                        <input type="text" id="customPurpose" placeholder="例: ご報告">
                     </div>
                 </div>
                 
@@ -577,8 +595,8 @@
                     </label>
                     <label class="radio-option">
                         <div class="radio-option-header">
-                            <input type="radio" name="closing" value="引き続きどうぞよろしくお願い申し上げます。">
-                            <span class="radio-label">引き続きどうぞよろしくお願い申し上げます。</span>
+                            <input type="radio" name="closing" value="引き続き、何卒よろしくお願い申し上げます。">
+                            <span class="radio-label">引き続き、何卒よろしくお願い申し上げます。</span>
                         </div>
                         <span class="radio-context">継続的な関係の場合</span>
                     </label>
@@ -618,7 +636,26 @@
             
             <!-- ヘッダー情報プレビュー -->
             <div class="preview-label">ヘッダー情報（クリックしてコピー）</div>
-            <div id="headerPreview" class="header-section"></div>
+            <div class="header-grid">
+                <div class="header-grid-label">件名:</div>
+                <div id="subjectPreview" class="header-section"></div>
+                
+                <div class="header-grid-label">差出人:</div>
+                <div id="senderPreview" class="header-grid-content"></div>
+                
+                <div class="header-grid-label">宛先:</div>
+                <div id="recipientPreview" class="header-grid-content"></div>
+                
+                <div id="ccRow" style="display: contents;">
+                    <div class="header-grid-label">CC:</div>
+                    <div id="ccPreview" class="header-grid-content"></div>
+                </div>
+                
+                <div id="bccRow" style="display: contents;">
+                    <div class="header-grid-label">BCC:</div>
+                    <div id="bccPreview" class="header-grid-content"></div>
+                </div>
+            </div>
             
             <!-- メール本文プレビュー -->
             <div class="preview-label">メール本文（クリックしてコピー）</div>
@@ -636,6 +673,18 @@
         const State = {
             isCopyInProgress: false
         };
+
+        function toggleCustomPurpose() {
+            const customRadio = document.querySelector('input[name="purpose"][value="custom"]');
+            const customInput = document.getElementById('customPurpose');
+            
+            if (customRadio.checked) {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = ''; // Очищаем при скрытии
+            }
+        }
 
         // 宛先名フィールドをロック/ロック解除する
         function updateRecipientFirstNameState() {
@@ -730,13 +779,16 @@
             const tel = document.getElementById('tel').value || '000-0000-0000';
             const email = document.getElementById('email').value || 'xxxx@mail.com';
 
-            // ヘッダープレビュー
-            let headerText = '';
-            headerText += `件名: ${subject}\n`;
-            headerText += `差出人: ${senderHeader}\n`;
-            headerText += `宛先: ${recipient}様\n`;
-            if (ccList) headerText += `CC: ${ccList}様\n`;
-            if (bccList) headerText += `BCC: ${bccList}様`;
+            // ヘッダープレビュー（分割）
+            document.getElementById('subjectPreview').textContent = subject;
+            document.getElementById('senderPreview').textContent = senderHeader;
+            document.getElementById('recipientPreview').textContent = `${recipient}様`;
+            // CC
+            document.getElementById('ccRow').style.display = ccList ? 'contents' : 'none';
+            if (ccList) document.getElementById('ccPreview').textContent = `${ccList}様`;
+            // BCC
+            document.getElementById('bccRow').style.display = bccList ? 'contents' : 'none';
+            if (bccList) document.getElementById('bccPreview').textContent = `${bccList}様`;
             
             // 本文プレビュー
             let emailText = '';
@@ -764,9 +816,6 @@
             signatureText += `${senderLastName}　${senderFirstName}`;
 
             document.getElementById('signaturePreview').textContent = signatureText;
-
-            document.getElementById('headerPreview').textContent = headerText;
-            document.getElementById('preview').textContent = emailText;
         }
 
         async function copyToClipboard(element) {
@@ -808,7 +857,7 @@
             // 留学生チェックボックス
             document.getElementById('isInternational').addEventListener('change', updatePreview);
 
-            document.getElementById('headerPreview').addEventListener('click', function() {
+            document.getElementById('subjectPreview').addEventListener('click', function() {
                 copyToClipboard(this);
             });
             
@@ -822,9 +871,15 @@
 
             document.getElementById('recipientLastName').addEventListener('input', function() {
                 updateRecipientFirstNameState();
+                updatePreview();
+            });
+
+            document.querySelectorAll('input[name="purpose"]').forEach(radio => {
+                radio.addEventListener('change', toggleCustomPurpose);
             });
 
             // 初期表示
+            toggleCustomPurpose();
             updateRecipientFirstNameState();
             updatePreview();
         });
